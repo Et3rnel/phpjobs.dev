@@ -1,6 +1,48 @@
 @charset "utf-8";
 @import "~bulma";
 
+@import url('https://fonts.googleapis.com/css2?family=Passion+One&family=Ubuntu:wght@300;400&display=swap');
+
+@import '~@fortawesome/fontawesome-free/scss/fontawesome';
+@import '~@fortawesome/fontawesome-free/scss/regular';
+@import '~@fortawesome/fontawesome-free/scss/solid';
+@import '~@fortawesome/fontawesome-free/scss/brands';
+
 body {
     background-color: lightgray;
+}
+
+.job-container {
+    font-family: 'Ubuntu', sans-serif;
+    margin: 5px 0px;
+    border: 1px solid black;
+    background: white;
+}
+.job-title {
+    color: #09A0DB;
+}
+
+span.tag {
+    text-transform: uppercase;
+    border-radius: 2px;
+    background: #63d063;
+    color: white;
+}
+
+div.job-additional-data {
+    padding: 9px 10px;
+    background: #f7f7f7;
+    text-align: center;
+}
+span.job-additional-data {
+    margin: 0 8px;
+}
+.job-additional-data-separator {
+    font-family: 'Passion One', cursive;
+    color: #afafaf52;
+}
+.tag img {
+    width: 18px;
+    height: 17px;
+    margin-right: 5px;
 }
