@@ -2,18 +2,21 @@
 
 namespace App\Controller;
 
-use Symfony\Component\HttpFoundation\Response;
+use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\Routing\Annotation\Route;
 
-class JobController
+class JobController extends AbstractController
 {
     /**
      * @Route("/jobs", name="jobs")
      */
     public function jobs()
     {
-        return new Response(
-            '<html><body>Jobs</body></html>'
-        );
+        return $this->render('jobs/jobs.html.twig', [
+            'jobs' => [
+                'job1' => 'my_job_1',
+                'job2' => 'my_job_2',
+            ]
+        ]);
     }
 }
