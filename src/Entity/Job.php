@@ -3,6 +3,7 @@
 namespace App\Entity;
 
 use App\Repository\JobRepository;
+use DateTime;
 use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection;
 use Doctrine\ORM\Mapping as ORM;
@@ -61,6 +62,7 @@ class Job
 
     public function __construct()
     {
+        $this->creation_date = new DateTime();
         $this->tags = new ArrayCollection();
     }
 
