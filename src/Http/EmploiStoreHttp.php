@@ -6,12 +6,11 @@ namespace App\Http;
 
 use GuzzleHttp\Client;
 use GuzzleHttp\Exception\GuzzleException;
-use GuzzleHttp\Handler\CurlHandler;
-use GuzzleHttp\HandlerStack;
+use GuzzleHttp\MessageFormatter;
 use GuzzleHttp\Middleware;
 use HttpException;
-use Psr\Http\Message\RequestInterface;
 use Psr\Http\Message\ResponseInterface;
+use Psr\Log\LoggerInterface;
 use Symfony\Component\HttpFoundation\Response;
 
 class EmploiStoreHttp
@@ -25,15 +24,27 @@ class EmploiStoreHttp
     /** @var string */
     private $emploiStoreClientSecret;
 
-    /** @var string */
-    private $accessToken;
+    /** @var PoleEmploiHttp */
+    private $poleEmploiHttp;
 
-    public function __construct(string $emploiStoreClientId, string $emploiStoreClientSecret)
+    public function __construct(
+        string $emploiStoreClientId,
+        string $emploiStoreClientSecret,
+        PoleEmploiHttp $poleEmploiHttp,
+        LoggerInterface $logger
+    )
     {
         $this->emploiStoreClientId = $emploiStoreClientId;
         $this->emploiStoreClientSecret = $emploiStoreClientSecret;
+        $this->poleEmploiHttp = $poleEmploiHttp;
 
-        $createAccessTokenGeneratorStack = $this->createAccessTokenGeneratorStack();
+        $handlerStack = $poleEmploiHttp->createAccessTokenGeneratorStack();
+        $handlerStack->push(
+            Middleware::log(
+                $logger,
+                new MessageFormatter('{req_body} - {res_body}')
+            )
+        );
 
         $this->client = new Client([
             'base_uri' => 'https://api.emploi-store.fr/partenaire/offresdemploi/',
@@ -42,8 +53,9 @@ class EmploiStoreHttp
             ],
             'verify' => 'C:\Projects\udemy\private\cacert.pem', // TODO : check how to make this way better
             'http_errors' => false, // TODO : check if it's really necessary to set it false or if we can handle errors
-            'handler' => $createAccessTokenGeneratorStack,
+            'handler' => $handlerStack,
         ]);
+
     }
 
     /**
@@ -52,79 +64,21 @@ class EmploiStoreHttp
      * @return ResponseInterface
      *
      * @throws GuzzleException
+     * @throws HttpException
      */
-    public function getJobs(): ResponseInterface
+    public function getJobs(): array
     {
-        return $this->client->request('GET', 'v2/offres/search');
-    }
-
-    /**
-     * Fetch the access token from pole emploi API with credentials to be able to access offres d'emploi API
-     *
-     * @return string|null Returns the access token or null if the request failed
-     *
-     * @throws GuzzleException
-     */
-    private function fetchAccessToken(): ?string
-    {
-        $scope1 = "application_{$this->emploiStoreClientId}";
-        $scope2 = 'api_offresdemploiv2';
-        $scope3 = 'o2dsoffre';
-
-        $client = new Client([
-            'base_uri' => 'https://entreprise.pole-emploi.fr/',
-            'verify' => 'C:\Projects\udemy\private\cacert.pem', // TODO : check how to make this way better
-            'http_errors' => false, // TODO : check if it's really necessary to set it false or if we can handle errors
-        ]);
-
-        $response = $client->request('POST', 'connexion/oauth2/access_token', [
+        $response = $this->client->request('GET', 'v2/offres/search', [
             'query' => [
-                'realm' => 'partenaire',
-            ],
-            'form_params' => [
-                'grant_type' =>	'client_credentials',
-                'client_id' => $this->emploiStoreClientId,
-                'client_secret' => $this->emploiStoreClientSecret,
-                'scope'	=> "$scope1 $scope2 $scope3"
+                'codeROME' => 'M1805',
+                'appellation' => '14156',
             ]
         ]);
 
-        if ($response->getStatusCode() === Response::HTTP_OK) {
-            $body = (string) $response->getBody();
-            $bodyArray = json_decode($body, true);
-
-            return $bodyArray['access_token'];
+        if ($response->getStatusCode() === Response::HTTP_PARTIAL_CONTENT) {
+            return json_decode((string) $response->getBody(), true);
         }
 
-        return null;
-    }
-
-    /**
-     * Adds a middleware to Guzzle client to be able to fetch an access token on each request if the access token
-     * is not set
-     *
-     * @return HandlerStack
-     *
-     * @throws GuzzleException
-     * @throws HttpException
-     */
-    private function createAccessTokenGeneratorStack(): HandlerStack
-    {
-        if (!$this->accessToken) {
-            $accessToken = $this->fetchAccessToken();
-            if (!$accessToken) {
-                throw new HttpException('Error while fetching the pole emlpoi access token');
-            }
-
-            $this->accessToken = $accessToken;
-        }
-
-        $stack = new HandlerStack();
-        $stack->setHandler(new CurlHandler());
-        $stack->push(Middleware::mapRequest(function (RequestInterface $request) {
-            return $request->withHeader('Authorization', "Bearer {$this->accessToken}");
-        }));
-
-        return $stack;
+        throw new HttpException();
     }
 }
