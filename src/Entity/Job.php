@@ -60,6 +60,14 @@ class Job
      */
     private $tags;
 
+    public static function createFromEmploiStoreArray(array $emploiStoreResult)
+    {
+        $job = new self();
+        $job->setTitle($emploiStoreResult['intitule'])
+            ->setDescription($emploiStoreResult['description']);
+//            ->set
+    }
+
     public function __construct()
     {
         $this->creation_date = new DateTime();

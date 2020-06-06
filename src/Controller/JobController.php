@@ -3,6 +3,9 @@
 namespace App\Controller;
 
 use App\Http\EmploiStoreHttp;
+use App\Normalizer\JobZipCodeNormalizer;
+use GuzzleHttp\Exception\GuzzleException;
+use HttpException;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Annotation\Route;
@@ -35,11 +38,31 @@ class JobController extends AbstractController
 
     /**
      * @Route("/jobs/fetch", name="jobs_fetch")
+     *
+     * @param EmploiStoreHttp $emploiStoreHttp
+     * @param JobZipCodeNormalizer $jobZipCodeNormalizer
+     *
+     * @return Response
+     *
+     * @throws GuzzleException
+     * @throws HttpException
      */
-    public function fetchNewJobs(EmploiStoreHttp $emploiStoreHttp)
+    public function fetchNewJobs(
+        EmploiStoreHttp $emploiStoreHttp,
+        JobZipCodeNormalizer $jobZipCodeNormalizer
+    )
     {
-        $a = $emploiStoreHttp->getJobs();
+        $jobs = $emploiStoreHttp->getJobs();
 
-        return new Response('Ah');
+        $jobsResult = $jobs['resultats'];
+        foreach ($jobsResult as $job) {
+            dump($job['lieuTravail']);
+            dump($jobZipCodeNormalizer->fromEmploiStoreResult($job));
+            dump('====================================================================');
+        }
+
+        die();
+
+        return new Response('Jobs fetched');
     }
 }

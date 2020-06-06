@@ -70,6 +70,7 @@ class EmploiStoreHttp
     {
         $response = $this->client->request('GET', 'v2/offres/search', [
             'query' => [
+                'range' => '0-9',
                 'codeROME' => 'M1805',
                 'appellation' => '14156',
             ]
