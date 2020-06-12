@@ -34,6 +34,22 @@ class Tag
      */
     private $jobs;
 
+    /**
+     * @ORM\Column(type="string", length=6)
+     */
+    private $textColor;
+
+    /**
+     * @ORM\Column(type="string", length=6)
+     */
+    private $backgroundColor;
+
+    /**
+     * @var string
+     * @ORM\Column(type="string", length=10)
+     */
+    private $ext;
+
     public function __construct()
     {
         $this->jobs = new ArrayCollection();
@@ -65,6 +81,60 @@ class Tag
     {
         $this->creation_date = $creation_date;
 
+        return $this;
+    }
+
+    /**
+     * @return mixed
+     */
+    public function getTextColor()
+    {
+        return $this->textColor;
+    }
+
+    /**
+     * @param mixed $textColor
+     * @return self
+     */
+    public function setTextColor($textColor)
+    {
+        $this->textColor = $textColor;
+        return $this;
+    }
+
+    /**
+     * @return mixed
+     */
+    public function getBackgroundColor()
+    {
+        return $this->backgroundColor;
+    }
+
+    /**
+     * @param mixed $backgroundColor
+     * @return self
+     */
+    public function setBackgroundColor($backgroundColor)
+    {
+        $this->backgroundColor = $backgroundColor;
+        return $this;
+    }
+
+    /**
+     * @return string
+     */
+    public function getExt(): string
+    {
+        return $this->ext;
+    }
+
+    /**
+     * @param string $ext
+     * @return self
+     */
+    public function setExt(string $ext): self
+    {
+        $this->ext = $ext;
         return $this;
     }
 

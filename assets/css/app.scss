@@ -9,14 +9,30 @@
 @import '~@fortawesome/fontawesome-free/scss/brands';
 
 body {
-    background-color: lightgray;
+    background-color: rgb(248, 248, 248);
 }
 
 .job-container {
     font-family: 'Ubuntu', sans-serif;
-    margin: 5px 0px;
-    border: 1px solid black;
+    margin: 35px 0px;
     background: white;
+    cursor: pointer;
+    box-shadow:rgb(204, 204, 204) 0px 0px 1px 0px;
+    border-radius: 2px;
+}
+.job-container:hover {
+    box-shadow: rgb(204, 204, 204) 0px 0px 10px 0px;
+}
+.job-description {
+    margin: 15px 0;
+}
+.job-tags {
+    margin-top: 15px;
+}
+.job-company {
+    background: #8080800d;
+    width: fit-content;
+    padding: 5px 10px;
 }
 .job-title {
     color: #09A0DB;
@@ -25,8 +41,6 @@ body {
 span.tag {
     text-transform: uppercase;
     border-radius: 2px;
-    background: #63d063;
-    color: white;
 }
 
 div.job-additional-data {
@@ -34,12 +48,10 @@ div.job-additional-data {
     background: #f7f7f7;
     text-align: center;
 }
-span.job-additional-data {
-    margin: 0 8px;
-}
 .job-additional-data-separator {
     font-family: 'Passion One', cursive;
     color: #afafaf52;
+    margin: 0 10px;
 }
 .tag img {
     width: 18px;

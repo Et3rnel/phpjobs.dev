@@ -4,35 +4,19 @@ declare(strict_types=1);
 
 namespace App\Http;
 
-use GuzzleHttp\Client;
 use GuzzleHttp\Exception\GuzzleException;
-use GuzzleHttp\HandlerStack;
-use GuzzleHttp\MessageFormatter;
-use GuzzleHttp\Middleware;
 use HttpException;
 use Psr\Log\LoggerInterface;
 use Symfony\Component\HttpFoundation\Response;
 
-class GeoGouvHttp
+class GeoGouvHttp extends AbstractHttp
 {
-    /** @var Client */
-    private $client;
-
     public function __construct(LoggerInterface $logger)
     {
-        $handlerStack = HandlerStack::create();
-        $handlerStack->push(
-            Middleware::log(
-                $logger,
-                new MessageFormatter('{req_body} - {res_body}')
-            )
-        );
+        parent::__construct($logger);
 
-        $this->client = new Client([
+        $this->createClient([
             'base_uri' => 'https://api-adresse.data.gouv.fr/',
-            'verify' => 'C:\Projects\udemy\private\cacert.pem', // TODO : check how to make this way better
-            'http_errors' => false, // TODO : check if it's really necessary to set it false or if we can handle errors
-            'handler' => $handlerStack,
         ]);
     }
 
@@ -62,5 +46,4 @@ class GeoGouvHttp
 
         throw new HttpException("This status code wasn't expected : {$response->getStatusCode()}");
     }
-
 }

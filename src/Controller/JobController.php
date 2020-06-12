@@ -2,45 +2,58 @@
 
 namespace App\Controller;
 
+use App\Assembler\JobAssembler;
+use App\Entity\Job;
 use App\Http\EmploiStoreHttp;
-use App\Normalizer\JobZipCodeNormalizer;
+use App\Repository\JobRepository;
+use App\Repository\TagRepository;
+use Doctrine\ORM\EntityManagerInterface;
 use GuzzleHttp\Exception\GuzzleException;
 use HttpException;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Annotation\Route;
+use function Symfony\Component\String\s;
 
 class JobController extends AbstractController
 {
     /**
      * @Route("/jobs", name="jobs")
+     *
+     * @param JobRepository $jobRepository
+     *
+     * @return Response
      */
-    public function jobs()
+    public function jobs(JobRepository $jobRepository)
     {
+        $jobs = $jobRepository->findAll();
+
         return $this->render('jobs/jobs.html.twig', [
-            'jobs' => [
-                'job1' => 'my_job_1',
-                'job2' => 'my_job_2',
-            ]
+            'jobs' => $jobs,
         ]);
     }
 
     /**
-     * @Route("/job", name="create_job", methods={"POST"})
+     * @Route("/job/{job}", name="job_show", methods={"GET"})
+     *
+     * @param Job $job
+     *
+     * @return Response
      */
-    public function createJob()
+    public function show(Job $job)
     {
-//        $job = new Job();
-//        $job->setTitle('Developpeur PHP');
-
-        return $this->redirect('jobs');
+        return $this->render('jobs/job.html.twig', [
+            'job' => $job
+        ]);
     }
 
     /**
      * @Route("/jobs/fetch", name="jobs_fetch")
      *
      * @param EmploiStoreHttp $emploiStoreHttp
-     * @param JobZipCodeNormalizer $jobZipCodeNormalizer
+     * @param JobAssembler $jobAssembler
+     * @param EntityManagerInterface $entityManager
+     * @param TagRepository $tagRepository
      *
      * @return Response
      *
@@ -49,18 +62,42 @@ class JobController extends AbstractController
      */
     public function fetchNewJobs(
         EmploiStoreHttp $emploiStoreHttp,
-        JobZipCodeNormalizer $jobZipCodeNormalizer
+        JobAssembler $jobAssembler,
+        EntityManagerInterface $entityManager,
+        TagRepository $tagRepository
     )
     {
         $jobs = $emploiStoreHttp->getJobs();
+        $tags = $tagRepository->findAllByLatest();
+
+//        dump($jobs);
 
         $jobsResult = $jobs['resultats'];
         foreach ($jobsResult as $job) {
+
+
             dump($job['lieuTravail']);
-            dump($jobZipCodeNormalizer->fromEmploiStoreResult($job));
-            dump('====================================================================');
+
+//            if (array_key_exists('dateActualisation',$job )){
+//                dump($job['dateActualisation']);
+//            }
+
+//            dump($job);
+
+            $jobEntity = $jobAssembler->fromEmploiStoreResultToJob($job);
+            $jobDescription = s($jobEntity->getDescription());
+
+            foreach ($tags as $tag) {
+                if ($jobDescription->ignoreCase()->containsAny($tag->getLabel())) {
+                    $jobEntity->addTag($tag);
+                }
+            }
+
+            $entityManager->persist($jobEntity);
         }
 
+//        die();
+        $entityManager->flush();
         die();
 
         return new Response('Jobs fetched');

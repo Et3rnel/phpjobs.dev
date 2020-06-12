@@ -36,7 +36,7 @@ class Job
     private $city;
 
     /**
-     * @ORM\Column(type="string", length=2)
+     * @ORM\Column(type="string", length=5)
      */
     private $zip_code;
 
@@ -56,17 +56,19 @@ class Job
     private $required_level;
 
     /**
+     * @ORM\Column(type="string", length=255)
+     */
+    private $url;
+
+    /**
+     * @ORM\Column(type="string", length=255)
+     */
+    private $company;
+
+    /**
      * @ORM\ManyToMany(targetEntity=Tag::class, inversedBy="jobs")
      */
     private $tags;
-
-    public static function createFromEmploiStoreArray(array $emploiStoreResult)
-    {
-        $job = new self();
-        $job->setTitle($emploiStoreResult['intitule'])
-            ->setDescription($emploiStoreResult['description']);
-//            ->set
-    }
 
     public function __construct()
     {
@@ -215,6 +217,42 @@ class Job
     public function setRequiredLevel($required_level): self
     {
         $this->required_level = $required_level;
+        return $this;
+    }
+
+    /**
+     * @return mixed
+     */
+    public function getUrl()
+    {
+        return $this->url;
+    }
+
+    /**
+     * @param mixed $url
+     * @return Job
+     */
+    public function setUrl($url)
+    {
+        $this->url = $url;
+        return $this;
+    }
+
+    /**
+     * @return mixed
+     */
+    public function getCompany()
+    {
+        return $this->company;
+    }
+
+    /**
+     * @param mixed $company
+     * @return Job
+     */
+    public function setCompany($company)
+    {
+        $this->company = $company;
         return $this;
     }
 

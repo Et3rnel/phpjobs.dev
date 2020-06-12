@@ -93,6 +93,9 @@
     "monolog/monolog": {
         "version": "2.1.0"
     },
+    "nesbot/carbon": {
+        "version": "2.35.0"
+    },
     "nikic/php-parser": {
         "version": "v4.4.0"
     },
@@ -198,6 +201,9 @@
     },
     "symfony/dependency-injection": {
         "version": "v5.0.8"
+    },
+    "symfony/deprecation-contracts": {
+        "version": "v2.1.2"
     },
     "symfony/doctrine-bridge": {
         "version": "v5.0.8"
@@ -537,6 +543,9 @@
         "version": "v5.0.8"
     },
     "twig/extra-bundle": {
+        "version": "v3.0.3"
+    },
+    "twig/string-extra": {
         "version": "v3.0.3"
     },
     "twig/twig": {

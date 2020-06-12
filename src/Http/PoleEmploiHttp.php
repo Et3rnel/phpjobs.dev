@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace App\Http;
 
-use GuzzleHttp\Client;
+use App\Http\Client\Client;
 use GuzzleHttp\Exception\GuzzleException;
 use GuzzleHttp\Handler\CurlHandler;
 use GuzzleHttp\HandlerStack;
@@ -18,11 +18,8 @@ use Symfony\Component\Cache\Adapter\FilesystemAdapter;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Contracts\Cache\ItemInterface;
 
-class PoleEmploiHttp
+class PoleEmploiHttp extends AbstractHttp
 {
-    /** @var Client */
-    private $client;
-
     /** @var string */
     private $emploiStoreClientId;
 
@@ -35,22 +32,13 @@ class PoleEmploiHttp
         LoggerInterface $logger
     )
     {
+        parent::__construct($logger);
+
         $this->emploiStoreClientId = $emploiStoreClientId;
         $this->emploiStoreClientSecret = $emploiStoreClientSecret;
 
-        $handlerStack = HandlerStack::create();
-        $handlerStack->push(
-            Middleware::log(
-                $logger,
-                new MessageFormatter('{req_body} - {res_body}')
-            )
-        );
-
-        $this->client = new Client([
+        $this->createClient([
             'base_uri' => 'https://entreprise.pole-emploi.fr/',
-            'verify' => 'C:\Projects\udemy\private\cacert.pem', // TODO : check how to make this way better
-            'http_errors' => false, // TODO : check if it's really necessary to set it false or if we can handle errors
-            'handler' => $handlerStack,
         ]);
     }
 

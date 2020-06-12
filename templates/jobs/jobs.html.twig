@@ -3,38 +3,43 @@
 {% block body %}
     <h1>Jobs base</h1>
 
+    <div id="testvue">
 
-    <ul>
+    </div>
+
     {% for job in jobs %}
-        <li>{{ job }}</li>
-    {% endfor %}
-    </ul>
+        <div class="columns job-container is-vcentered">
+            <div class="column is-three-fifths">
+                <a href="{{ job.url }}" target="_blank">Dummy</a>
+                <div class="job-title is-size-4">{{ job.title }}</div>
+                <div class="job-description">{{ job.description|u.truncate(200, '...') }}</div>
+                <div class="job-company">
+                    <i class="fas fa-city"></i> {{ job.company }}
+                    <span class="job-additional-data-separator">|</span>
+                    <i class="fas fa-clock fa-sm"></i> {{ job.creationDate|diffForHumans }}
+                </div>
 
-    <div class="columns job-container is-vcentered">
-        <div class="column is-four-fifths">
-            <div class="job-title is-size-4">Développeur PHP Symfony 4</div>
-            <div><i class="fas fa-city"></i> Cdiscount - <i class="fas fa-clock fa-sm"></i> il y a 4 jours</div>
-            <span class="tag"><img src="{{ asset('images/tags/symfony-logo.svg') }}"> Symfony</span>
-            <span class="tag"><img src="{{ asset('images/tags/laravel-logo.svg') }}"> Vue.js</span>
-        </div>
-        <div class="column has-text-centered">
-            <div class="job-additional-data is-inline-block">
-                <span class="job-additional-data"><i class="fas fa-map-marker-alt"></i> Bordeaux</span>
-                <span class="job-additional-data-separator">|</span>
-                <span class="job-additional-data"><i class="fas fa-briefcase"></i> CDI temps plein</span>
+                <div class="job-tags">
+                    {% for tag in job.tags %}
+                        {% set imgPath = 'images/tags/' ~ tag.label ~ '-logo.' ~ tag.ext %}
+                        <span style="
+                                background-color: #{{ tag.backgroundColor }};
+                                color: #{{ tag.textColor }};
+                                border: 1px solid #{{ tag.textColor }};
+                                " class="tag">
+                        <img src="{{ asset(imgPath) }}"> {{ tag.label }}
+                    </span>
+                    {% endfor %}
+                </div>
+            </div>
+            <div class="column has-text-centered">
+                <div class="job-additional-data is-inline-block">
+                    <span class="job-additional-data"><i class="fas fa-map-marker-alt"></i> {{ job.city }}</span>
+                    <span class="job-additional-data-separator">|</span>
+                    <span class="job-additional-data"><i class="fas fa-briefcase"></i> {{ job.contractType }}</span>
+                </div>
             </div>
         </div>
-    </div>
-
-    <div class="columns job-container">
-        <div class="column is-four-fifths">
-            <div class="job-title is-size-4">Développeur PHP Laravel 7</div>
-            <div>Il y a 23 jours</div>
-            <span class="tag">Laravel</span>
-            <span class="tag">React.js</span>
-        </div>
-        <div class="column"><div>Paris | Freelance</div></div>
-    </div>
-
+    {% endfor %}
 
 {% endblock %}
