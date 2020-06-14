@@ -47,16 +47,21 @@ class EmploiStoreHttp extends AbstractHttp
     /**
      * Returns all jobs as a pure response
      *
+     * @param int $limit
+     *
      * @return array
      *
      * @throws EmploiStoreHttpException
      * @throws GuzzleException
      */
-    public function getJobs(): array
+    public function getJobs(int $limit = 100): array
     {
+        $maxRange = $limit - 1;
+        $range = "0-{$maxRange}";
+
         $response = $this->client->request('GET', 'v2/offres/search', [
             'query' => [
-                'range' => '0-99',
+                'range' => $range,
                 'codeROME' => 'M1805',
                 'appellation' => '14156',
             ]
