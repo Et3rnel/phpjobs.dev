@@ -16,12 +16,15 @@ class HttpCommand extends Command
     protected function configure()
     {
         $this
-            ->setDescription('Add a short description for your command')
+            ->setDescription('Fetch jobs from pôle emploi and store them in the database')
+            ->setHelp('The command fetch jobs from pôle emploi and store them in the database. You must already have configured your API key to fetch pôle emploi API')
         ;
     }
 
     protected function execute(InputInterface $input, OutputInterface $output): int
     {
+        $output->write("Test d'écriture de notre commande. Premier appel!");
+
         return Command::SUCCESS;
     }
 }
