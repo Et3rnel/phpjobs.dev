@@ -26,7 +26,7 @@ class JobController extends AbstractController
      */
     public function jobs(JobRepository $jobRepository)
     {
-        $jobs = $jobRepository->findAll();
+        $jobs = $jobRepository->findAllByLatest();
 
         return $this->render('jobs/jobs.html.twig', [
             'jobs' => $jobs,
@@ -68,7 +68,7 @@ class JobController extends AbstractController
     )
     {
         $jobs = $emploiStoreHttp->getJobs();
-        $tags = $tagRepository->findAllByLatest();
+        $tags = $tagRepository->findAll();
 
 //        dump($jobs);
 
