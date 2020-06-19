@@ -68,7 +68,9 @@ class EmploiStoreHttp extends AbstractHttp
         ]);
 
         if ($response->getStatusCode() === Response::HTTP_PARTIAL_CONTENT) {
-            return json_decode((string) $response->getBody(), true);
+            $responseBody = (string) $response->getBody();
+            $bodyArray = json_decode($responseBody, true);
+            return $bodyArray['resultats'];
         }
 
         throw new EmploiStoreHttpException($response->getStatusCode());
