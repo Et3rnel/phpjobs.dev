@@ -28,13 +28,18 @@ class JobsFetchCommand extends Command
         $this
             ->setDescription('Fetch jobs from pôle emploi API.')
             ->setHelp('Fetch jobs from pôle emploi API. You must configure the token before calling pôle emploi API')
-            ->addArgument('limit_jobs_fetch', InputArgument::REQUIRED, 'How many jobs you want to fetch ?')
+            ->addArgument('limit_jobs_fetch', InputArgument::OPTIONAL, 'How many jobs you want to fetch ?')
         ;
     }
 
     protected function execute(InputInterface $input, OutputInterface $output): int
     {
-        $limitJobsFetch = (int) $input->getArgument('limit_jobs_fetch');
+        $limitJobsFetch = $input->getArgument('limit_jobs_fetch');
+        if ($limitJobsFetch === null) {
+            $limitJobsFetch = 100;
+        } else {
+            $limitJobsFetch = (int) $limitJobsFetch;
+        }
 
         $jobs = $this->emploiStoreHttp->getJobs($limitJobsFetch);
         $jobsCount = count($jobs);
@@ -45,7 +50,7 @@ class JobsFetchCommand extends Command
             $typeContratLibelle = array_key_exists('typeContratLibelle', $job) ? $job['typeContratLibelle'] : '';
             $experienceLibelle = array_key_exists('experienceLibelle', $job) ? $job['experienceLibelle'] : '';
 
-            $rows[] = [$intitule,$typeContratLibelle, $experienceLibelle];
+            $rows[] = [$intitule, $typeContratLibelle, $experienceLibelle];
         }
 
         $table = new Table($output);

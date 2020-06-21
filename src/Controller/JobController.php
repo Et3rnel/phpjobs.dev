@@ -70,20 +70,8 @@ class JobController extends AbstractController
         $jobs = $emploiStoreHttp->getJobs();
         $tags = $tagRepository->findAll();
 
-//        dump($jobs);
-
         $jobsResult = $jobs['resultats'];
         foreach ($jobsResult as $job) {
-
-
-            dump($job['lieuTravail']);
-
-//            if (array_key_exists('dateActualisation',$job )){
-//                dump($job['dateActualisation']);
-//            }
-
-//            dump($job);
-
             $jobEntity = $jobAssembler->fromEmploiStoreResultToJob($job);
             $jobDescription = s($jobEntity->getDescription());
 
@@ -96,9 +84,7 @@ class JobController extends AbstractController
             $entityManager->persist($jobEntity);
         }
 
-//        die();
         $entityManager->flush();
-        die();
 
         return new Response('Jobs fetched');
     }
