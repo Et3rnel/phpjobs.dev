@@ -22,7 +22,7 @@ class Tag
     /**
      * @ORM\Column(type="string", length=255)
      */
-    private $label;
+    private $label; // e.g: symfony, laravel, cakephp
 
     /**
      * @ORM\Column(type="datetime")

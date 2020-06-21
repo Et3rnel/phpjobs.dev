@@ -2,12 +2,17 @@
 
 namespace App\Command;
 
+use App\Assembler\JobAssembler;
 use App\Http\EmploiStoreHttp;
+use App\Repository\TagRepository;
+use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Helper\Table;
 use Symfony\Component\Console\Input\InputArgument;
 use Symfony\Component\Console\Input\InputInterface;
+use Symfony\Component\Console\Input\InputOption;
 use Symfony\Component\Console\Output\OutputInterface;
+use function Symfony\Component\String\s;
 
 class JobsFetchCommand extends Command
 {
@@ -16,9 +21,26 @@ class JobsFetchCommand extends Command
     /** @var EmploiStoreHttp */
     private $emploiStoreHttp;
 
-    public function __construct(EmploiStoreHttp $emploiStoreHttp)
+    /** @var JobAssembler */
+    private $jobAssembler;
+
+    /** @var EntityManagerInterface */
+    private $entityManager;
+
+    /** @var TagRepository */
+    private $tagRepository;
+
+    public function __construct(
+        EmploiStoreHttp $emploiStoreHttp,
+        JobAssembler $jobAssembler,
+        EntityManagerInterface $entityManager,
+        TagRepository $tagRepository
+    )
     {
         $this->emploiStoreHttp = $emploiStoreHttp;
+        $this->jobAssembler = $jobAssembler;
+        $this->entityManager = $entityManager;
+        $this->tagRepository = $tagRepository;
 
         parent::__construct();
     }
@@ -29,6 +51,7 @@ class JobsFetchCommand extends Command
             ->setDescription('Fetch jobs from pôle emploi API.')
             ->setHelp('Fetch jobs from pôle emploi API. You must configure the token before calling pôle emploi API')
             ->addArgument('limit_jobs_fetch', InputArgument::OPTIONAL, 'How many jobs you want to fetch ?')
+            ->addOption('info', 'i', InputOption::VALUE_NONE, 'Do you want to display jobs fetched ?')
         ;
     }
 
@@ -53,13 +76,34 @@ class JobsFetchCommand extends Command
             $rows[] = [$intitule, $typeContratLibelle, $experienceLibelle];
         }
 
-        $table = new Table($output);
-        $table->setHeaders(['Intitule', 'Type de contrat', 'Experience require']);
-        $table->setRows($rows);
-        $table->setHeaderTitle("$jobsCount job(s) fetched from API");
-        $table->setFooterTitle('New jobs fetched from API');
-        $table->setStyle('box');
-        $table->render();
+        $displayInfo = $input->getOption('info');
+        if ($displayInfo) {
+            $table = new Table($output);
+            $table->setHeaders(['Intitule', 'Type de contrat', 'Experience require']);
+            $table->setRows($rows);
+            $table->setHeaderTitle("$jobsCount job(s) fetched from API");
+            $table->setFooterTitle('New jobs fetched from API');
+            $table->setStyle('box');
+            $table->render();
+        }
+
+        $tags = $this->tagRepository->findAll();
+
+        /** @var array $job */
+        foreach ($jobs as $job) {
+            $jobEntity = $this->jobAssembler->fromEmploiStoreResultToJob($job);
+            $jobDescription = s($jobEntity->getDescription());
+
+            foreach ($tags as $tag) {
+                if ($jobDescription->ignoreCase()->containsAny($tag->getLabel())) {
+                    $jobEntity->addTag($tag);
+                }
+            }
+
+            $this->entityManager->persist($jobEntity);
+        }
+
+        $this->entityManager->flush();
 
         return Command::SUCCESS;
     }
