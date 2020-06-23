@@ -7,6 +7,7 @@ use App\Http\EmploiStoreHttp;
 use App\Repository\TagRepository;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Component\Console\Command\Command;
+use Symfony\Component\Console\Helper\ProgressBar;
 use Symfony\Component\Console\Helper\Table;
 use Symfony\Component\Console\Input\InputArgument;
 use Symfony\Component\Console\Input\InputInterface;
@@ -89,6 +90,9 @@ class JobsFetchCommand extends Command
 
         $tags = $this->tagRepository->findAll();
 
+        $progressBar = new ProgressBar($output, $jobsCount);
+        $progressBar->start();
+
         /** @var array $job */
         foreach ($jobs as $job) {
             $jobEntity = $this->jobAssembler->fromEmploiStoreResultToJob($job);
@@ -101,8 +105,9 @@ class JobsFetchCommand extends Command
             }
 
             $this->entityManager->persist($jobEntity);
+            $progressBar->advance();
         }
-
+        $progressBar->finish();
         $this->entityManager->flush();
 
         return Command::SUCCESS;
