@@ -13,6 +13,7 @@ use Symfony\Component\Console\Input\InputArgument;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Input\InputOption;
 use Symfony\Component\Console\Output\OutputInterface;
+use function GuzzleHttp\Psr7\normalize_header;
 use function Symfony\Component\String\s;
 
 class JobsFetchCommand extends Command
@@ -91,10 +92,10 @@ class JobsFetchCommand extends Command
         $tags = $this->tagRepository->findAll();
 
         $progressBar = new ProgressBar($output, $jobsCount);
-        $progressBar->start();
+        $progressBar->setFormat('debug');
 
         /** @var array $job */
-        foreach ($jobs as $job) {
+        foreach ($progressBar->iterate($jobs) as $job) {
             $jobEntity = $this->jobAssembler->fromEmploiStoreResultToJob($job);
             $jobDescription = s($jobEntity->getDescription());
 
@@ -103,11 +104,8 @@ class JobsFetchCommand extends Command
                     $jobEntity->addTag($tag);
                 }
             }
-
             $this->entityManager->persist($jobEntity);
-            $progressBar->advance();
         }
-        $progressBar->finish();
         $this->entityManager->flush();
 
         return Command::SUCCESS;
