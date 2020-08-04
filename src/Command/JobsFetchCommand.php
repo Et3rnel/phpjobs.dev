@@ -9,6 +9,7 @@ use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Helper\ProgressBar;
 use Symfony\Component\Console\Helper\Table;
+use Symfony\Component\Console\Input\ArrayInput;
 use Symfony\Component\Console\Input\InputArgument;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Input\InputOption;
@@ -106,6 +107,25 @@ class JobsFetchCommand extends Command
             $this->entityManager->persist($jobEntity);
         }
         $this->entityManager->flush();
+
+
+        $output->writeln('');
+
+
+        $application = $this->getApplication();
+
+        $commandPurge = $application->find('jobs:purge');
+        $arguments = [
+            'nb_days_threshold' => 20,
+        ];
+        $purgeInput = new ArrayInput($arguments);
+        $returnCodePurge = $commandPurge->run($purgeInput, $output);
+
+        $commandCacheClear = $application->find('cache:clear');
+        $returnCodeCacheClear = $commandCacheClear->run(new ArrayInput([]), $output);
+
+        $output->writeln('$returnCodePurge : ' . $returnCodePurge);
+        $output->writeln('$returnCodeCacheClear : ' . $returnCodeCacheClear);
 
         return Command::SUCCESS;
     }

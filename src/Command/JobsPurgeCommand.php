@@ -18,7 +18,7 @@ class JobsPurgeCommand extends Command
             ->setDescription('Purge jobs in the database.')
             ->setHelp('Purge jobs in the database. You can add additional information with the command arguments')
             ->addArgument('nb_days_threshold', InputArgument::REQUIRED, 'How many days for the job to be considered too old ?')
-            ->addArgument('tags_list', InputArgument::IS_ARRAY, 'Which tags (framework) do you want to keep ?')
+            ->addArgument('tags_list', InputArgument::IS_ARRAY | InputArgument::OPTIONAL, 'Which tags (framework) do you want to keep ?')
             ->addOption('jobs_limit', 'l', InputOption::VALUE_REQUIRED, 'If specified, only X job(s) will be deleted')
         ;
     }
@@ -26,6 +26,8 @@ class JobsPurgeCommand extends Command
     protected function execute(InputInterface $input, OutputInterface $output): int
     {
         $output->write('Start of command execution');
+
+        $output->writeln('');
 
         dump($input->getArguments());
         dump($input->getOptions());
