@@ -108,10 +108,6 @@ class JobsFetchCommand extends Command
         }
         $this->entityManager->flush();
 
-
-        $output->writeln('');
-
-
         $application = $this->getApplication();
 
         $commandPurge = $application->find('jobs:purge');

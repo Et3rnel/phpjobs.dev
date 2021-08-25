@@ -27,10 +27,7 @@ class JobsPurgeCommand extends Command
     {
         $output->write('Start of command execution');
 
-        $output->writeln('');
-
-        dump($input->getArguments());
-        dump($input->getOptions());
+        // TODO : command creation work in progress
 
         $output->write('End of command execution');
 
